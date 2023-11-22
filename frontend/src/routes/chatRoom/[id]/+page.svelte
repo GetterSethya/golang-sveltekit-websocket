@@ -3,19 +3,24 @@
 	import ThreeDot from '$lib/svg/threeDot.svelte';
 	import type { PageData } from './$types';
 	import PaperPlane from '$lib/svg/paperPlane.svelte';
-	import type { User } from '$lib/types/myTypes';
+	import { messageTypeEnum, type Message, type User, type WsResponse } from '$lib/types/myTypes';
 	import CenterModal from '$lib/components/centerModal.svelte';
 	import { getOtherUserId } from '$lib/misc/misc';
 	import UserChatBubble from '$lib/components/userChatBubble.svelte';
 	import OtherUserChatBubble from '$lib/components/otherUserChatBubble.svelte';
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { navigating, page } from '$app/stores';
 	import { applyAction, enhance } from '$app/forms';
+	import { newWebsocketConn } from '$lib/websocket/websocket';
+	import { currentRoomId } from '$lib/store';
+	import { browser } from '$app/environment';
 
 	export let data: PageData;
 	let inputMessage: string;
 	let chatContainer: HTMLDivElement;
 	let waitingResult = false;
+	let wsConn: WebSocket | undefined;
+	let wsPayload: WsResponse;
 
 	function setChatTitle(idata: any) {
 		if (data.chatRoom.chatRoomType == 'group') {
@@ -38,11 +43,72 @@
 		}, 100);
 	});
 
-	$: if ($navigating) {
+	onDestroy(() => {
+		if (wsConn) {
+			wsConn.close();
+		}
+	});
+
+	$: if ($currentRoomId.roomId != data.chatRoom.id && browser) {
+		if (wsConn) {
+			console.log(
+				'websocket connection already opened to: ',
+				$currentRoomId.roomId,
+				'\n',
+				'closing...'
+			);
+			wsConn.close();
+		}
+		console.log('Opening new connection to: ', data.chatRoom.id);
+		wsConn = newWebsocketConn(data.chatRoom.id);
+		$currentRoomId.roomId = data.chatRoom.id;
+
+		console.log('done updating array');
+	}
+
+	$: if ($navigating && browser) {
+		if (wsConn) {
+			wsConn = newWebsocketConn(data.chatRoom.id);
+		}
 		setTimeout(() => {
 			chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
 		}, 100);
 	}
+
+	$: if (wsConn) {
+		wsConn.onmessage = (e) => {
+			console.log(e.data);
+			const wsRes: WsResponse = JSON.parse(e.data);
+			const newWsMsg: Message = {
+				id: 'ws chat',
+				chatRoomId: data.chatRoom.id,
+				createdAt: wsRes.createdAt,
+				deletedAt: null,
+				messageBody: wsRes.message,
+				messageLink: '',
+				messageType: messageTypeEnum.message,
+				sender: {
+					id: wsRes.senderId,
+					createdAt: new Date().toString(),
+					deletedAt: null,
+					email: 'ws email',
+					name: wsRes.name,
+					updatedAt: new Date().toString()
+				},
+
+				updatedAt: new Date().toString(),
+				userId: wsRes.senderId
+			};
+			data.chatRoom.messages.push(newWsMsg);
+			data.chatRoom.messages = data.chatRoom.messages;
+			console.log('done creating msg');
+			setTimeout(() => {
+				chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
+			}, 100);
+		};
+	}
+
+	$: console.log(data);
 
 	let otherUserId = getOtherUserId(data.userData.id, data.chatRoom.participant);
 	let chatRoomState = { showDotMenu: false, showDetailPesonal: false };
@@ -100,6 +166,15 @@
 		use:enhance={() => {
 			waitingResult = true;
 			return async ({ result }) => {
+				wsPayload = {
+					action: 'show',
+					createdAt: new Date().toString(),
+					message: inputMessage,
+					name: data.userData.name,
+					senderId: data.userData.id
+				};
+				wsConn?.send(JSON.stringify(wsPayload));
+
 				inputMessage = '';
 				waitingResult = false;
 				await applyAction(result);
