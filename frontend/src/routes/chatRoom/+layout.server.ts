@@ -18,7 +18,5 @@ export const load: LayoutServerLoad = async ({ cookies, params, fetch }) => {
 		console.error(err);
 	}
 
-	console.log(res);
-
 	return { chatRooms: res?.response.data.chatrooms as ChatRoom[] };
 };

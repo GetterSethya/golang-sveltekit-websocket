@@ -29,8 +29,6 @@
 		console.log('show');
 		fetchUserDetail(userId);
 	}
-
-	$: console.log(userData);
 </script>
 
 {#if show}

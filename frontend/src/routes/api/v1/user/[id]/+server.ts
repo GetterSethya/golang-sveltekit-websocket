@@ -30,7 +30,5 @@ export const GET: RequestHandler = async ({ fetch, cookies, params }) => {
 		return json(data, { status: 500 });
 	}
 
-	console.log(res);
-
 	return json(res.response);
 };

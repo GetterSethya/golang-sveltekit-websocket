@@ -66,14 +66,12 @@ export const actions: Actions = {
 			fd.append('input-password', password);
 			fd.append('input-name', name);
 
-			console.log(fd);
-
 			const fetchRegis = await fetch(AUTH_URL + '/register', {
 				method: 'POST',
 				body: fd
 			});
 			const jsonString = await fetchRegis.json();
-			console.log(jsonString);
+
 			res = { status: fetchRegis.status, response: jsonString };
 		} catch (err) {
 			console.error(err);
@@ -86,7 +84,6 @@ export const actions: Actions = {
 			return fail(res.status, data);
 		}
 
-		console.log(res);
 		throw redirect(302, '/login');
 	}
 };
