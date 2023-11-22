@@ -1,6 +1,7 @@
 package websocket
 
 import (
+	"encoding/json"
 	"log"
 	"sync"
 
@@ -20,6 +21,11 @@ func NewWSServer() *WSServer {
 }
 
 type WsResponseData struct {
+	Action    string `json:"action"`
+	Message   string `json:"message"`
+	SenderId  string `json:"senderId"`
+	Name      string `json:"name"`
+	CreatedAt string `json:"createdAt"`
 }
 
 func (w *WSServer) HandleWS(c echo.Context) error {
@@ -52,16 +58,21 @@ func (w *WSServer) HandleWS(c echo.Context) error {
 		}()
 
 		for {
-			var msg string
+			var wsres = WsResponseData{}
 
-			if err := websocket.Message.Receive(ws, &msg); err != nil {
+			if err := websocket.JSON.Receive(ws, &wsres); err != nil {
 				log.Println("Ws error when receiving message: ", err)
 				break
 			}
 
-			log.Println("From: ", ws.RemoteAddr(), " incoming message: ", msg, "for room: ", chatRoomId)
+			jsonRes, err := json.Marshal(wsres)
+			if err != nil {
+				log.Println("Error when creating json for websocket response: ", err)
+			}
 
-			w.Broadcast(chatRoomId, msg)
+			log.Println("From: ", ws.RemoteAddr(), " incoming message: ", string(jsonRes), "for room: ", chatRoomId)
+
+			w.Broadcast(chatRoomId, string(jsonRes))
 		}
 
 	}).ServeHTTP(c.Response(), c.Request())

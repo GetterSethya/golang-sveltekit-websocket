@@ -42,9 +42,12 @@ func main() {
 	}
 
 	e.GET("/health_check", controllers.HealthCheckHandler)
-	e.POST("/login", controllers.LoginHandler)
-	e.POST("/register", controllers.RegisterHandler)
-	e.POST("/refresh", controllers.RefreshHandler)
+
+	authGroup := e.Group("/auth")
+	authGroup.POST("/login", controllers.LoginHandler)
+	authGroup.POST("/register", controllers.RegisterHandler)
+	authGroup.POST("/refresh", controllers.RefreshHandler)
+
 	e.GET("/ws/:chat_room_id", wsServer.HandleWS)
 
 	apiGroup := e.Group("/backend/api/v1")
@@ -71,14 +74,15 @@ func main() {
 	})
 
 	apiGroup.GET("/rahasia", func(c echo.Context) error {
-		userid := c.Get("user").(*jwt.Token).Claims.(jwt.MapClaims)["UserId"].(string)
+		// userid := c.Get("user").(*jwt.Token).Claims.(jwt.MapClaims)["UserId"].(string)
 
-		return c.JSON(http.StatusOK, map[string]interface{}{"userId": userid})
+		return c.JSON(http.StatusOK, controllers.ResponseData{IsError: false, Messages: []string{"Access token is valid"}, Data: nil})
 	})
 
 	apiGroup.Any("/message", controllers.MessageHandler(dbInstance))
 	apiGroup.Any("/group_chat_room", controllers.GroupChatRoomHandler(dbInstance))
 	apiGroup.Any("/chat_room", controllers.ChatRoomHandler(dbInstance))
+	apiGroup.Any("/user", controllers.UserHandler(dbInstance))
 
 	e.Logger.Fatal(e.Start(":1437"))
 

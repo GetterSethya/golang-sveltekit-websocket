@@ -162,10 +162,15 @@ func ChatRoomHandler(dbInstance *gorm.DB) echo.HandlerFunc {
 		if c.Request().Method == "GET" {
 			// get /chat_room?crid=uuid
 			chatRoomId := c.QueryParam("crid")
-			if chatRoomId != "" && misc.ValidateUUID(chatRoomId) {
+			if chatRoomId != "" {
+				if misc.ValidateUUID(chatRoomId) {
+					status, res := GetChatRoom(chatRoomId, dbInstance, c)
+					return c.JSON(status, res)
+				} else {
+					res := ResponseData{IsError: true, Messages: []string{"Valid room id is required"}, Data: nil}
+					return c.JSON(http.StatusBadRequest, res)
+				}
 
-				status, res := GetChatRoom(chatRoomId, dbInstance, c)
-				return c.JSON(status, res)
 			} else {
 				// list
 

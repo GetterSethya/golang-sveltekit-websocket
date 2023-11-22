@@ -3,6 +3,7 @@ package controllers
 import (
 	"backend/db"
 	"backend/models"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -14,9 +15,19 @@ import (
 
 func RegisterHandler(c echo.Context) error {
 
+	println(c.Request().Header.Get("Content-Type"))
+	if err := c.Request().ParseMultipartForm(10 << 20); err != nil {
+		res := ResponseData{IsError: true, Messages: []string{"Error when parsing form data"}, Data: nil}
+		log.Println(err)
+
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
 	email := strings.ToLower(c.Request().FormValue("input-email"))
 	password := c.Request().FormValue("input-password")
 	name := c.Request().FormValue("input-name")
+
+	log.Println(email, password, name)
 
 	// validasi user input
 	if email == "" || password == "" || name == "" {

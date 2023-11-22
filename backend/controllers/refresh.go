@@ -56,6 +56,6 @@ func RefreshHandler(c echo.Context) error {
 	c.Response().Header().Set(echo.HeaderAuthorization, newToken)
 	c.SetCookie(misc.CreateCookie("Session", "Authorization: "+newToken))
 
-	res := ResponseData{IsError: false, Messages: []string{"Token refreshed"}, Data: map[string]interface{}{"accessToken": newToken, "refreshToken": newRefreshToken}}
+	res := ResponseData{IsError: false, Messages: []string{"Token refreshed"}, Data: map[string]interface{}{"accessToken": newToken, "refreshToken": newRefreshToken, "userId": userId}}
 	return c.JSON(http.StatusCreated, res)
 }

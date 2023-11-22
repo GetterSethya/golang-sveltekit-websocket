@@ -55,8 +55,8 @@ func CreateMessage(dbInstance *gorm.DB, c echo.Context) (httpStatus int, res Res
 	newMessage.Sender.ID = senderId
 
 	// return newmessage
-	res = ResponseData{IsError: true, Messages: []string{"Message created"}, Data: map[string]interface{}{"message": newMessage}}
-	return http.StatusOK, res
+	res = ResponseData{IsError: false, Messages: []string{"Message created"}, Data: map[string]interface{}{"message": newMessage}}
+	return http.StatusCreated, res
 }
 
 // not tested yet!

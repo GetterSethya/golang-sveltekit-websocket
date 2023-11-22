@@ -7,7 +7,7 @@ import (
 )
 
 type User struct {
-	ID        string         `gorm:"primaryKey" json:"Id"`
+	ID        string         `gorm:"primaryKey" json:"id"`
 	CreatedAt time.Time      `gorm:"not null" json:"createdAt"`
 	UpdatedAt time.Time      `gorm:"not null" json:"updatedAt"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"deletedAt"`
@@ -17,17 +17,17 @@ type User struct {
 }
 
 type ChatRoom struct {
-	ID           string         `gorm:"primaryKey" json:"Id"`
+	ID           string         `gorm:"primaryKey" json:"id"`
 	CreatedAt    time.Time      `gorm:"not null" json:"createdAt"`
 	UpdatedAt    time.Time      `gorm:"not null" json:"updatedAt"`
 	DeletedAt    gorm.DeletedAt `gorm:"index" json:"deletedAt"`
 	Participant  []User         `gorm:"many2many:user_chatroom; not null" json:"participant"`
 	Messages     []Message      `gorm:"null" json:"messages"`
-	ChatRoomType string         `gorm:"default:personal"`
+	ChatRoomType string         `gorm:"default:personal" json:"chatRoomType"`
 }
 
 type Message struct {
-	ID          string         `gorm:"primaryKey" json:"Id"`
+	ID          string         `gorm:"primaryKey" json:"id"`
 	CreatedAt   time.Time      `gorm:"not null" json:"createdAt"`
 	UpdatedAt   time.Time      `gorm:"not null" json:"updatedAt"`
 	DeletedAt   gorm.DeletedAt `gorm:"index" json:"deletedAt"`
@@ -40,7 +40,7 @@ type Message struct {
 }
 
 type GroupChatRoom struct {
-	ID         string         `gorm:"primaryKey" json:"Id"`
+	ID         string         `gorm:"primaryKey" json:"id"`
 	CreatedAt  time.Time      `gorm:"not null" json:"createdAt"`
 	UpdatedAt  time.Time      `gorm:"not null" json:"updatedAt"`
 	DeletedAt  gorm.DeletedAt `gorm:"index" json:"deletedAt"`
