@@ -13,6 +13,7 @@
 	import { LightSwitch } from '@skeletonlabs/skeleton';
 	import List from '$lib/svg/list.svelte';
 	import MobileModal from '$lib/components/mobileModal.svelte';
+	import Menu from '$lib/components/menu.svelte';
 
 	initializeStores();
 
@@ -59,34 +60,6 @@
 			<Gear /> Settings</a
 		>
 		<hr />
-		<form
-			use:enhance={() => {
-				waitingResult = true;
-				return async ({ result }) => {
-					await applyAction(result);
-					waitingResult = false;
-					showUserModal = false;
-				};
-			}}
-			bind:this={logoutForm}
-			action="/logout/?logout"
-			method="POST"
-			style="display: contents;"
-		>
-			<button
-				on:click={() => {
-					logoutForm.submit;
-				}}
-				disabled={waitingResult}
-				class="flex flex-row items-center justify-start gap-2 mx-auto dark:hover:text-white hover:text-primary-500"
-			>
-				{#if waitingResult == true}<ProgressRadial
-						width="w-4"
-						meter="stroke-surface-100 dark:stroke-surface-900"
-					/>{/if}
-				<ArrowLeft /> Log out
-			</button>
-		</form>
 	</div>
 {/if}
 
@@ -107,8 +80,41 @@
 							toastStore.trigger(t);
 						}}>trigger</button
 					>
+
 					<div class="flex flex-row items-center gap-2 ms-auto">
-						<p>{$page.data.userData.name}</p>
+						<Menu>
+							<p slot="menu">{$page.data.userData.name}</p>
+							<svelte:fragment slot="options">
+								<form
+									use:enhance={() => {
+										waitingResult = true;
+										return async ({ result }) => {
+											await applyAction(result);
+											waitingResult = false;
+											showUserModal = false;
+										};
+									}}
+									bind:this={logoutForm}
+									action="/logout/?logout"
+									method="POST"
+									style="display: contents;"
+								>
+									<button
+										on:click={() => {
+											logoutForm.submit;
+										}}
+										disabled={waitingResult}
+										class="flex btn text-primary-500 flex-row items-center justify-start gap-2 mx-auto"
+									>
+										{#if waitingResult == true}<ProgressRadial
+												width="w-4"
+												meter="stroke-surface-100 dark:stroke-surface-900"
+											/>{/if}
+										<ArrowLeft /> Log out
+									</button>
+								</form>
+							</svelte:fragment>
+						</Menu>
 						<LightSwitch />
 					</div>
 				</div>

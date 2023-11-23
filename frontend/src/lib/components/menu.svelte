@@ -5,7 +5,7 @@
 	export let position: string = 'right-5 2xl:right-[20.5em]';
 </script>
 
-<div class="ms-auto me-5">
+<div class="ms-auto">
 	<button
 		class="rounded dark:hover:bg-surface-700 hover:bg-surface-300 flex justify-center items-center gap-2"
 		class:bg-surface-700={show}

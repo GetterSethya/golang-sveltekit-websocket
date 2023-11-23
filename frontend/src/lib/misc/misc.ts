@@ -24,7 +24,6 @@ export function relativeTime(strDateTime: string) {
 			result = rtf.format(-days, 'day');
 		}
 	} catch (err) {
-		console.log(err);
 		result = '';
 	}
 

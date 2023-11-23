@@ -83,6 +83,7 @@ func main() {
 	apiGroup.Any("/group_chat_room", controllers.GroupChatRoomHandler(dbInstance))
 	apiGroup.Any("/chat_room", controllers.ChatRoomHandler(dbInstance))
 	apiGroup.Any("/user", controllers.UserHandler(dbInstance))
+	apiGroup.GET("/checkEmail", controllers.CheckEmailHandler(dbInstance))
 
 	e.Logger.Fatal(e.Start(":1437"))
 

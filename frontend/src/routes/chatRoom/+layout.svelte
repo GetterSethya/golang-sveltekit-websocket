@@ -6,6 +6,7 @@
 	import Menu from '$lib/components/menu.svelte';
 	import Person from '$lib/svg/person.svelte';
 	import People from '$lib/svg/people.svelte';
+	import { page } from '$app/stores';
 
 	export let data: LayoutData;
 
@@ -23,50 +24,58 @@
 	let layoutChatRoomState = { showCreateChatRoom: false };
 </script>
 
-<div class="h-[94vh] w-screen 2xl:w-3/4 2xl:mx-auto flex flex-row">
-	<div class=" w-1/2 border-x border-surface-200 dark:border-surface-700">
-		<div class="flex p-5 border-b border-surface-200 dark:border-surface-700">
-			<h4 class="h4 font-bold">Message</h4>
-			<Menu position="" bind:show={layoutChatRoomState.showCreateChatRoom}>
-				<button slot="menu" class="ms-auto btn btn-sm variant-filled-primary rounded">
-					<EnvelopePlus />
-				</button>
-				<div slot="options" class="flex flex-col">
-					<a
-						on:click={() => {
-							layoutChatRoomState.showCreateChatRoom = false;
-						}}
-						class="flex flex-row items-center gap-2 justify-between p-5 font-bold hover:bg-surface-100 dark:hover:bg-surface-800"
-						href="/chatRoom/createPersonal">Personal <Person /></a
-					>
-					<a
-						on:click={() => {
-							layoutChatRoomState.showCreateChatRoom = false;
-						}}
-						class="flex flex-row text-primary-500 items-center gap-2 justify-between p-5 font-bold hover:bg-surface-100 dark:hover:bg-surface-800"
-						href="/chatRoom/createGroup">Group <People /></a
-					>
-				</div>
-			</Menu>
+{#if !String($page.route.id).startsWith('/chatRoom/create')}
+	<div class="h-[94vh] w-screen 2xl:w-3/4 2xl:mx-auto flex flex-row">
+		<div class=" w-1/2 border-x border-surface-200 dark:border-surface-700">
+			<div class="flex p-5 border-b border-surface-200 dark:border-surface-700">
+				<h4 class="h4 font-bold">Message</h4>
+				<Menu position="" bind:show={layoutChatRoomState.showCreateChatRoom}>
+					<button slot="menu" class="ms-auto btn btn-sm variant-filled-primary rounded">
+						<EnvelopePlus />
+					</button>
+					<div slot="options" class="flex flex-col">
+						<a
+							on:click={() => {
+								layoutChatRoomState.showCreateChatRoom = false;
+							}}
+							class="flex flex-row items-center gap-2 justify-between p-5 font-bold hover:bg-surface-100 dark:hover:bg-surface-800"
+							href="/chatRoom/createPersonal">Personal <Person /></a
+						>
+						<a
+							on:click={() => {
+								layoutChatRoomState.showCreateChatRoom = false;
+							}}
+							class="flex flex-row text-primary-500 items-center gap-2 justify-between p-5 font-bold hover:bg-surface-100 dark:hover:bg-surface-800"
+							href="/chatRoom/createGroup">Group<People /></a
+						>
+					</div>
+				</Menu>
+			</div>
+
+			{#each data.chatRooms as room}
+				<a
+					href="/chatRoom/{room.id}"
+					class="border-b border-surface-200 dark:border-surface-700 p-5 flex flex-col"
+				>
+					<h4 class="h4">
+						{room.messages[0]?.sender?.name || getOtherUser(room.participant) || ''}
+					</h4>
+					<article class="text-surface-400">
+						{room.messages[0]?.messageBody || ''}
+					</article>
+					<p class="ms-auto text-surface-400">
+						<small>{relativeTime(room.messages[0]?.createdAt)}</small>
+					</p>
+				</a>
+			{/each}
 		</div>
 
-		{#each data.chatRooms as room}
-			<a
-				href="/chatRoom/{room.id}"
-				class="border-b border-surface-200 dark:border-surface-700 p-5 flex flex-col"
-			>
-				<h4 class="h4">{room.messages[0]?.sender?.name || getOtherUser(room.participant) || ''}</h4>
-				<article class="text-surface-400">
-					{room.messages[0]?.messageBody || ''}
-				</article>
-				<p class="ms-auto text-surface-400">
-					<small>{relativeTime(room.messages[0]?.createdAt)}</small>
-				</p>
-			</a>
-		{/each}
+		<div class="w-full border-e dark:border-surface-700 border-surface-200">
+			<slot />
+		</div>
 	</div>
-
-	<div class="w-full border-e dark:border-surface-700 border-surface-200">
+{:else}
+	<div class="w-full">
 		<slot />
 	</div>
-</div>
+{/if}

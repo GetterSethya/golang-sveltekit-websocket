@@ -1,8 +1,8 @@
 import { API_URL } from '$env/static/private';
-import type { LayoutServerLoad, PageServerLoad } from './$types';
+import type { LayoutServerLoad } from './$types';
 import type { ChatRoom, ServerResponse } from '$lib/types/myTypes';
 
-export const load: LayoutServerLoad = async ({ cookies, params, fetch }) => {
+export const load: LayoutServerLoad = async ({ cookies, params, fetch, locals }) => {
 	let session = cookies.get('session');
 	let res: { status: number; response: ServerResponse } | undefined;
 	try {
@@ -18,5 +18,8 @@ export const load: LayoutServerLoad = async ({ cookies, params, fetch }) => {
 		console.error(err);
 	}
 
-	return { chatRooms: res?.response.data.chatrooms as ChatRoom[] };
+	return {
+		chatRooms: res?.response.data.chatrooms as ChatRoom[],
+		userData: { id: locals.userId, name: locals.name, email: locals.email }
+	};
 };
