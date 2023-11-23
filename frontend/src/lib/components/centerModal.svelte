@@ -51,16 +51,16 @@
 		{:else}
 			<div transition:scale class="flex h-full">
 				<div
-					class="relative w-1/2 bg-surface-900 m-auto rounded p-5 border dark:border-surface-700"
+					class="relative w-1/2 bg-surface-50 dark:bg-surface-900 m-auto rounded p-5 border border-surface-200 dark:border-surface-700"
 				>
 					<h4 class="text-2xl font-bold">User detail</h4>
-					<div class="p-2.5 my-2.5 rounded border dark:border-surface-700">
+					<div class="p-2.5 my-2.5 rounded border border-surface-200 dark:border-surface-700">
 						<p class="text-surface-400">
 							<small>Name</small>
 						</p>
 						<h4 class="h4 font-bold">{userData?.data.name}</h4>
 					</div>
-					<div class="p-2.5 my-2.5 rounded border dark:border-surface-700">
+					<div class="p-2.5 my-2.5 rounded border border-surface-200 dark:border-surface-700">
 						<p class="text-surface-400">
 							<small>Email</small>
 						</p>

@@ -24,7 +24,7 @@ func CheckEmailHandler(dbInstance *gorm.DB) echo.HandlerFunc {
 			return c.JSON(http.StatusNotFound, res)
 		}
 
-		res := ResponseData{IsError: false, Messages: []string{"Email exists"}, Data: nil}
+		res := ResponseData{IsError: false, Messages: []string{"Email exists"}, Data: map[string]interface{}{"userId": user.ID}}
 		return c.JSON(http.StatusOK, res)
 	}
 }

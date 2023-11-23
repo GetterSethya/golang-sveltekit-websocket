@@ -45,6 +45,7 @@
 			id="email"
 			placeholder="email"
 			disabled={waitingResult}
+			required
 		/>
 		<input
 			class="bg-transparent dark:border-surface-600 border-surface-300 border rounded p-1.5 ps-2"
@@ -53,6 +54,7 @@
 			id="password"
 			placeholder="Password"
 			disabled={waitingResult}
+			required
 		/>
 		<button
 			disabled={waitingResult}

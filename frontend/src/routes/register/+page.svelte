@@ -47,6 +47,7 @@
 			id="email"
 			placeholder="Email"
 			disabled={waitingResult}
+			required
 		/>
 		<input
 			class="bg-transparent dark:border-surface-600 border-surface-300 border rounded p-1.5 ps-2"
@@ -55,6 +56,7 @@
 			id="name"
 			placeholder="Name"
 			disabled={waitingResult}
+			required
 		/>
 		<input
 			class="bg-transparent dark:border-surface-600 border-surface-300 border rounded p-1.5 ps-2"
@@ -63,6 +65,7 @@
 			id="password"
 			placeholder="Password"
 			disabled={waitingResult}
+			required
 		/>
 		<input
 			class="bg-transparent dark:border-surface-600 border-surface-300 border rounded p-1.5 ps-2"
@@ -71,6 +74,7 @@
 			id="confirm_password"
 			placeholder="Confirm Password"
 			disabled={waitingResult}
+			required
 		/>
 
 		<button

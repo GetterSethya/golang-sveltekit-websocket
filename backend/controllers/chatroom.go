@@ -3,6 +3,7 @@ package controllers
 import (
 	"backend/misc"
 	"backend/models"
+	"log"
 	"net/http"
 	"time"
 
@@ -20,6 +21,8 @@ func CreateChatRoom(dbInstance *gorm.DB, c echo.Context) (httpStatus int, res Re
 	receiverId := c.Request().FormValue("input-receiverId")
 	roomId := uuid.NewString()
 
+	log.Println("sender ", senderId)
+	log.Println("receiver ", receiverId)
 	// validasi user input
 	if senderId == "" || receiverId == "" || !misc.ValidateUUID(senderId) || !misc.ValidateUUID(receiverId) {
 
@@ -59,7 +62,7 @@ func CreateChatRoom(dbInstance *gorm.DB, c echo.Context) (httpStatus int, res Re
 
 	// return chatroom data
 	res = ResponseData{IsError: false, Messages: []string{"Chatroom created"}, Data: map[string]interface{}{"chatRoom": chatRoom}}
-	return http.StatusOK, res
+	return http.StatusCreated, res
 }
 
 func GetChatRoom(chatRoomId string, dbInstance *gorm.DB, c echo.Context) (httpStatus int, res ResponseData) {
