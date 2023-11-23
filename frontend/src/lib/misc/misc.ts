@@ -1,27 +1,31 @@
 import type { User } from '$lib/types/myTypes';
 
 export function relativeTime(strDateTime: string) {
-	const createdAtDate = new Date(strDateTime);
-	const now = new Date();
-
-	const elapsedMilliseconds = now.getTime() - createdAtDate.getTime();
-	const seconds = Math.floor(elapsedMilliseconds / 1000);
-
-	const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
-
 	let result;
+	try {
+		const createdAtDate = new Date(strDateTime);
+		const now = new Date();
 
-	if (seconds < 60) {
-		result = rtf.format(-seconds, 'second');
-	} else if (seconds < 3600) {
-		const minutes = Math.floor(seconds / 60);
-		result = rtf.format(-minutes, 'minute');
-	} else if (seconds < 86400) {
-		const hours = Math.floor(seconds / 3600);
-		result = rtf.format(-hours, 'hour');
-	} else {
-		const days = Math.floor(seconds / 86400);
-		result = rtf.format(-days, 'day');
+		const elapsedMilliseconds = now.getTime() - createdAtDate.getTime();
+		const seconds = Math.floor(elapsedMilliseconds / 1000);
+
+		const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+
+		if (seconds < 60) {
+			result = rtf.format(-seconds, 'second');
+		} else if (seconds < 3600) {
+			const minutes = Math.floor(seconds / 60);
+			result = rtf.format(-minutes, 'minute');
+		} else if (seconds < 86400) {
+			const hours = Math.floor(seconds / 3600);
+			result = rtf.format(-hours, 'hour');
+		} else {
+			const days = Math.floor(seconds / 86400);
+			result = rtf.format(-days, 'day');
+		}
+	} catch (err) {
+		console.log(err);
+		result = '';
 	}
 
 	return result;

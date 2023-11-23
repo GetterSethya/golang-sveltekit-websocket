@@ -46,11 +46,15 @@
 	onDestroy(() => {
 		if (wsConn) {
 			wsConn.close();
+			wsConn = undefined;
 		}
 	});
 
-	$: if ($currentRoomId.roomId != data.chatRoom.id && browser) {
-		if (wsConn) {
+	$: if (($navigating || browser) && $page.params.id) {
+		// check ws
+		// if exists and currentroomid != "" && currentroomid != data.chatRoomid
+		if (wsConn && $currentRoomId.roomId != '' && $currentRoomId.roomId != data.chatRoom.id) {
+			// close ws conn
 			console.log(
 				'websocket connection already opened to: ',
 				$currentRoomId.roomId,
@@ -58,24 +62,17 @@
 				'closing...'
 			);
 			wsConn.close();
+			wsConn = undefined;
 		}
-		console.log('Opening new connection to: ', data.chatRoom.id);
-		wsConn = newWebsocketConn(data.chatRoom.id);
-		$currentRoomId.roomId = data.chatRoom.id;
 
-		console.log('done updating array');
-	}
-
-	$: if ($navigating && browser) {
-		if (wsConn) {
+		if (!wsConn) {
+			// connect to data.chatrom.id
+			console.log('Opening new connection to: ', data.chatRoom.id);
 			wsConn = newWebsocketConn(data.chatRoom.id);
+			$currentRoomId.roomId = data.chatRoom.id;
 		}
-		setTimeout(() => {
-			chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
-		}, 100);
-	}
 
-	$: if (wsConn) {
+		// onMessage = ()=>{}
 		wsConn.onmessage = (e) => {
 			console.log(e.data);
 			const wsRes: WsResponse = JSON.parse(e.data);
@@ -101,15 +98,14 @@
 			};
 			data.chatRoom.messages.push(newWsMsg);
 			data.chatRoom.messages = data.chatRoom.messages;
-			console.log('done creating msg');
-			setTimeout(() => {
-				chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
-			}, 100);
 		};
+		console.log('done creating msg');
+		setTimeout(() => {
+			chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
+		}, 100);
 	}
 
 	$: console.log(data);
-
 	let otherUserId = getOtherUserId(data.userData.id, data.chatRoom.participant);
 	let chatRoomState = { showDotMenu: false, showDetailPesonal: false };
 </script>
