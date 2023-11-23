@@ -13,3 +13,4 @@ let obj: toastType = {
 
 export const toastData = writable(obj);
 export const currentRoomId = writable({ roomId: '' });
+export const groupName = writable('');

@@ -13,6 +13,7 @@ import (
 func GetUser(dbInstance *gorm.DB, c echo.Context) (httpStatus int, res ResponseData) {
 
 	userIdParam := c.QueryParam("userId")
+	listParam := c.QueryParam("listUser")
 
 	if userIdParam != "" {
 		if !misc.ValidateUUID(userIdParam) {
@@ -27,6 +28,20 @@ func GetUser(dbInstance *gorm.DB, c echo.Context) (httpStatus int, res ResponseD
 		}
 
 		res = ResponseData{IsError: false, Messages: []string{"Success"}, Data: user}
+		return http.StatusOK, res
+
+	} else if listParam != "" && listParam == "true" {
+
+		var users []models.User
+		userId := c.Get("user").(*jwt.Token).Claims.(jwt.MapClaims)["UserId"].(string)
+
+		if err := dbInstance.Where("id != ?", userId).Find(&users).Error; err != nil {
+			res := ResponseData{IsError: true, Messages: []string{"Something went wrong"}, Data: nil}
+			return http.StatusInternalServerError, res
+		}
+
+		res = ResponseData{IsError: false, Messages: []string{"Success"}, Data: map[string]interface{}{"users": users}}
+
 		return http.StatusOK, res
 
 	} else {

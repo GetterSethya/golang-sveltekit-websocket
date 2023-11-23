@@ -89,7 +89,7 @@ func ListChatRoom(dbInstance *gorm.DB, c echo.Context) (httpStatus int, res Resp
 
 	// get list of chatroom
 	if err := dbInstance.Preload("Participant").Preload("Messages", func(db *gorm.DB) *gorm.DB {
-		return db.Order("messages.created_at DESC").Limit(1).Preload("Sender")
+		return db.Order("messages.created_at DESC").Preload("Sender")
 	}).
 		Joins("JOIN user_chatroom ON chat_rooms.id = user_chatroom.chat_room_id").
 		Where("chat_rooms.chat_room_type = ? AND user_chatroom.user_id = ?", "personal", userid).
@@ -182,7 +182,7 @@ func ChatRoomHandler(dbInstance *gorm.DB) echo.HandlerFunc {
 			}
 		}
 
-		// delete /crid=uuid
+		// delete/chat_room?crid=uuid
 		if c.Request().Method == "DELETE" {
 
 			status, res := LeaveChatRoom(dbInstance, c)

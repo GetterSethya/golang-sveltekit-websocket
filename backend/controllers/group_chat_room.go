@@ -4,6 +4,7 @@ import (
 	"backend/misc"
 	"backend/models"
 	"encoding/json"
+	"log"
 	"net/http"
 	"time"
 
@@ -25,6 +26,7 @@ func CreateGroupChatRoom(dbInstance *gorm.DB, c echo.Context) (httpStatus int, r
 
 	//formdata json string {participantId:["uuid","uuid"]}
 	inputParticipantUserId := c.Request().FormValue("input-participant")
+	log.Println(inputParticipantUserId)
 	roomName := c.Request().FormValue("input-roomName")
 
 	if inputParticipantUserId == "" || roomName == "" {
@@ -69,6 +71,8 @@ func CreateGroupChatRoom(dbInstance *gorm.DB, c echo.Context) (httpStatus int, r
 		return http.StatusInternalServerError, res
 	}
 
+	log.Println("group created")
+
 	res = ResponseData{IsError: false, Messages: []string{"Group chat room created"}, Data: map[string]interface{}{"groupChatRoom": returnGroupChatRoom}}
 	return http.StatusCreated, res
 }
@@ -110,7 +114,7 @@ func ListGroupChatRoom(dbInstance *gorm.DB, c echo.Context) (httpStatus int, res
 
 	// get group chat where user in participant
 	if err := dbInstance.Preload("ChatRoom.Messages", func(db *gorm.DB) *gorm.DB {
-		return db.Order("messages.created_at DESC").Limit(1).Preload("Sender")
+		return db.Order("messages.created_at DESC").Preload("Sender")
 	}).Preload("RoleAdmin").
 		Joins("JOIN chat_rooms ON group_chat_rooms.chat_room_id = chat_rooms.id").
 		Joins("JOIN user_chatroom ON chat_rooms.id = user_chatroom.chat_room_id").
@@ -187,11 +191,13 @@ func GroupChatRoomHandler(dbInstance *gorm.DB) echo.HandlerFunc {
 			// get group_chat_room?gcrid=uuid
 			groupChatRoomId := c.QueryParam("gcrid")
 			if groupChatRoomId != "" {
+				log.Println("get group")
 
 				status, res := GetGroupChatRoom(groupChatRoomId, dbInstance, c)
 				return c.JSON(status, res)
 			} else {
 
+				log.Println("list group")
 				// list group_chat_room where current user in participant
 				status, res := ListGroupChatRoom(dbInstance, c)
 				return c.JSON(status, res)

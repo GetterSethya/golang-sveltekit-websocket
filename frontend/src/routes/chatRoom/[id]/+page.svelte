@@ -12,8 +12,10 @@
 	import { navigating, page } from '$app/stores';
 	import { applyAction, enhance } from '$app/forms';
 	import { newWebsocketConn } from '$lib/websocket/websocket';
-	import { currentRoomId } from '$lib/store';
+	import { currentRoomId, groupName } from '$lib/store';
 	import { browser } from '$app/environment';
+	import CenterModalGroup from '$lib/components/centerModalGroup.svelte';
+	import { goto, invalidateAll } from '$app/navigation';
 
 	export let data: PageData;
 	let inputMessage: string;
@@ -21,10 +23,15 @@
 	let waitingResult = false;
 	let wsConn: WebSocket | undefined;
 	let wsPayload: WsResponse;
+	let isWaiting = false;
+
+	$: if ($groupName == '') {
+		$groupName = $page.url.searchParams.get('groupName') as string;
+	}
 
 	function setChatTitle(idata: any) {
 		if (data.chatRoom.chatRoomType == 'group') {
-			return idata.roomName;
+			return $groupName;
 		}
 		if (data.chatRoom.chatRoomType == 'personal') {
 			let title;
@@ -98,14 +105,13 @@
 			};
 			data.chatRoom.messages.push(newWsMsg);
 			data.chatRoom.messages = data.chatRoom.messages;
+			setTimeout(() => {
+				chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
+			}, 100);
 		};
 		console.log('done creating msg');
-		setTimeout(() => {
-			chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
-		}, 100);
 	}
 
-	$: console.log(data);
 	let otherUserId = getOtherUserId(data.userData.id, data.chatRoom.participant);
 	let chatRoomState = { showDotMenu: false, showDetailPesonal: false };
 </script>
@@ -126,19 +132,43 @@
 				slot="menu"><ThreeDot /></button
 			>
 			<div class="flex flex-col" slot="options">
-				<button
-					on:click={() => {
-						chatRoomState.showDotMenu = !chatRoomState.showDotMenu;
-						chatRoomState.showDetailPesonal = true;
-					}}
-					class="btn font-bold">Detail</button
-				>
-				<button
-					on:click={() => {
-						chatRoomState.showDotMenu = !chatRoomState.showDotMenu;
-					}}
-					class="btn font-bold text-primary-500">Leave</button
-				>
+				{#if data.chatRoom.chatRoomType == 'personal'}
+					<button
+						on:click={() => {
+							chatRoomState.showDotMenu = !chatRoomState.showDotMenu;
+
+							chatRoomState.showDetailPesonal = true;
+						}}
+						class="btn font-bold">Detail</button
+					>
+				{/if}
+				{#if data.chatRoom.chatRoomType == 'group'}
+					<form
+						use:enhance={() => {
+							isWaiting = true;
+							return async ({ result }) => {
+								await invalidateAll();
+								if (result.status == 200) {
+									goto('/chatRoom');
+								}
+
+								isWaiting = false;
+								await applyAction(result);
+							};
+						}}
+						action="/chatRoom/leave/?leave"
+						method="POST"
+						style="display: contents;"
+					>
+						<button
+							on:click={() => {
+								chatRoomState.showDotMenu = !chatRoomState.showDotMenu;
+							}}
+							class="btn font-bold text-primary-500">Leave</button
+						>
+						<input type="hidden" name="input-chatRoomId" value={data.chatRoom.id} />
+					</form>
+				{/if}
 			</div>
 		</Menu>
 	</div>

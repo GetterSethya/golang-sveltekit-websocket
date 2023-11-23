@@ -1,13 +1,12 @@
 <script lang="ts">
 	import { applyAction, enhance } from '$app/forms';
-	import { goto } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import { toastData } from '$lib/store';
 	import PersonAdd from '$lib/svg/personAdd.svelte';
 	import type { ActionData } from './$types';
 
-	let email: string;
 	export let form: ActionData;
-	let createPersonalState = {};
+
 	let waitingResult = false;
 
 	$: toast = {
@@ -28,6 +27,7 @@
 					waitingResult = true;
 					return async ({ result }) => {
 						await applyAction(result);
+						await invalidateAll();
 						console.log(result);
 						if (result.status == 200 || result.status == 201) {
 							goto('/chatRoom/' + form?.chatRoom.id);
