@@ -32,13 +32,6 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@libsql/client": "^0.3.6",
-		"@lucia-auth/adapter-prisma": "^3.0.2",
-		"@prisma/adapter-libsql": "^5.5.2",
-		"@prisma/client": "^5.5.2",
-		"@types/nodemailer": "^6.4.13",
-		"lucia": "^2.7.2",
-		"nodemailer": "^6.9.7",
 		"zod": "^3.22.4"
 	}
 }
